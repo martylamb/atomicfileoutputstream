@@ -75,9 +75,14 @@ public class AtomicFileOutputStream extends OutputStream {
     
     @Override public void close() throws IOException {
         io(() -> _out.close());
-        io(() -> finish());
+        io(() -> finish(true));
     }    
-    
+
+    public void cancel() throws IOException {
+        io(() -> _out.close());
+        io(() -> finish(false));
+    }
+
     @Override public void flush() throws IOException {
         io(() -> _out.flush());
     }
@@ -105,16 +110,18 @@ public class AtomicFileOutputStream extends OutputStream {
     }
 
     // perform the final operations to move the temporary file to its final destination
-    private void finish() throws IOException {
+    private void finish(boolean success) throws IOException {
         check();
-        try {
-            // copy original to .bak
-            Files.copy(_dest, _bak, StandardCopyOption.REPLACE_EXISTING);
-            // atomically move tmp over original
-            Files.move(_tmp, _dest, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            cleanup();
-            throw(e);
+        if (success) {
+            try {
+                // copy original to .bak
+                Files.copy(_dest, _bak, StandardCopyOption.REPLACE_EXISTING);
+                // atomically move tmp over original
+                Files.move(_tmp, _dest, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                cleanup();
+                throw(e);
+            }
         }
         cleanup();
         Files.deleteIfExists(_bak); // only delete backup if everything works
