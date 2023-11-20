@@ -3,7 +3,7 @@
 atomicfileoutputstream
 ======================
 
-Marty Lamb mlamb@martiansoftware.com at [Martian Software, Inc.](http://martiansoftware.com)
+Marty Lamb marty@martiansoftware.com, [Martian Software, Inc.](http://martiansoftware.com)
 
 This is a single-class micro-library that attempts to make (potentially) large file writes either succeed or fail entirely, rather than partway through.
 
